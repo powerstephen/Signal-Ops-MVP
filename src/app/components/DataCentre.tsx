@@ -35,7 +35,7 @@ export default function DataCentre() {
   const [search, setSearch] = useState('')
   const [importing, setImporting] = useState(null)
 
-  const isConn = (id) => integrations.find(i=>i.id===id)?.datasets?.some(ds => sources.some(s=>s.id===`${id}-${ds.label.toLowerCase().replace(/\s/g,'-')}`)) ?? false
+  const isConn = (id: string) => integrations.find(i=>i.id===id)?.datasets?.some(ds => sources.some(s=>s.id===`${id}-${ds.label.toLowerCase().replace(/\s/g,'-')}`)) ?? false
   const connCount = integrations.filter(i=>isConn(i.id)).length
 
   const filtered = integrations.filter(i => {
