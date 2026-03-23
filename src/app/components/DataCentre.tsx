@@ -27,13 +27,13 @@ const integrations = [
 ]
 
 const categories = ['All','CRM','Billing','CS','Spreadsheets','Outreach','Signals']
-const catColors = { CRM:'bg-blue-500/10 text-blue-400', Billing:'bg-teal-500/10 text-teal-400', CS:'bg-purple-500/10 text-purple-400', Spreadsheets:'bg-green-500/10 text-green-400', Outreach:'bg-amber-500/10 text-amber-400', Signals:'bg-red-500/10 text-red-400' }
+const catColors: Record<string, string> = { CRM:'bg-blue-500/10 text-blue-400', Billing:'bg-teal-500/10 text-teal-400', CS:'bg-purple-500/10 text-purple-400', Spreadsheets:'bg-green-500/10 text-green-400', Outreach:'bg-amber-500/10 text-amber-400', Signals:'bg-red-500/10 text-red-400' }
 
 export default function DataCentre() {
   const { sources, removeSource } = useImport()
   const [activeCat, setActiveCat] = useState('All')
   const [search, setSearch] = useState('')
-  const [importing, setImporting] = useState(null)
+  const [importing, setImporting] = useState<typeof integrations[0] | null>(null)
 
   const isConn = (id: string) => integrations.find(i=>i.id===id)?.datasets?.some(ds => sources.some(s=>s.id===`${id}-${ds.label.toLowerCase().replace(/\s/g,'-')}`)) ?? false
   const connCount = integrations.filter(i=>isConn(i.id)).length
@@ -92,7 +92,7 @@ export default function DataCentre() {
                 ? <div className="text-xs text-slate-600 border border-slate-700 rounded-lg px-3 py-2 text-center">Coming soon</div>
                 : conn
                   ? <button onClick={()=>ig.datasets?.forEach(ds=>removeSource(`${ig.id}-${ds.label.toLowerCase().replace(/\s/g,'-')}`))} className="flex items-center justify-center gap-1.5 text-xs font-medium text-teal-400 border border-teal-500/30 bg-teal-500/5 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 rounded-lg px-3 py-2 transition-colors w-full"><CheckCircle size={13} /> Connected</button>
-                  : <button onClick={()=>ig.datasets && setImporting(ig as any)} disabled={!ig.datasets} className="flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 rounded-lg px-3 py-2 transition-colors w-full"><Plus size={13} /> Connect</button>
+                  : <button onClick={()=>ig.datasets && setImporting(ig)} disabled={!ig.datasets} className="flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 rounded-lg px-3 py-2 transition-colors w-full"><Plus size={13} /> Connect</button>
               }
             </div>
           )
