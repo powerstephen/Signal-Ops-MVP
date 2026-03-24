@@ -38,11 +38,11 @@ export default function RecoverTab() {
     setError('')
     try {
       const res = await fetch('/api/score-accounts', { method: 'POST' })
-      if (!res.ok) throw new Error('Scoring failed')
       const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Scoring failed')
       setAccounts(data.accounts)
-    } catch {
-      setError('Scoring failed. Check your ANTHROPIC_API_KEY is set.')
+    } catch (e: any) {
+      setError(e.message || 'Scoring failed — check Vercel function logs for details')
     } finally {
       setLoading(false)
     }
