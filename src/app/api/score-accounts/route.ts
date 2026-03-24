@@ -3,6 +3,11 @@ import { getAllCustomers, getBestCustomers } from '@/lib/data'
 
 export async function POST() {
   try {
+    // Check API key exists
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: 'OPENAI_API_KEY not set in environment variables' }, { status: 500 })
+    }
+
     const all = getAllCustomers()
     const best = getBestCustomers()
 
@@ -62,7 +67,19 @@ Return a JSON object with an accounts array:
       }),
     })
 
+    if (!response.ok) {
+      const errText = await response.text()
+      console.error('OpenAI error:', response.status, errText)
+      return NextResponse.json({ error: `OpenAI API error ${response.status}: ${errText}` }, { status: 500 })
+    }
+
     const data = await response.json()
+
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Unexpected OpenAI response:', JSON.stringify(data))
+      return NextResponse.json({ error: 'Unexpected response from OpenAI', detail: JSON.stringify(data) }, { status: 500 })
+    }
+
     const parsed = JSON.parse(data.choices[0].message.content)
     const scores = parsed.accounts
 
@@ -76,8 +93,8 @@ Return a JSON object with an accounts array:
       .sort((a: any, b: any) => b.icp_score - a.icp_score)
 
     return NextResponse.json({ accounts: scored })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Scoring error:', error)
-    return NextResponse.json({ error: 'Scoring failed' }, { status: 500 })
+    return NextResponse.json({ error: error?.message ?? 'Scoring failed' }, { status: 500 })
   }
 }
