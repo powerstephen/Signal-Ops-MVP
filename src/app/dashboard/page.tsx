@@ -13,45 +13,50 @@ type Tab = 'icp' | 'recover' | 'generate' | 'data'
 function DashboardInner() {
   const [activeTab, setActiveTab] = useState<Tab>('data')
   const tabs = [
-    { id: 'data' as Tab,     label: 'Data Centre',  icon: Database,  },
-    { id: 'icp' as Tab,      label: 'ICP Profile',  icon: Target,    },
-    { id: 'recover' as Tab,  label: 'Recover',      icon: RefreshCw, },
-    { id: 'generate' as Tab, label: 'Generate',     icon: Zap,       },
+    { id: 'data'     as Tab, label: 'Data Centre', icon: Database  },
+    { id: 'icp'      as Tab, label: 'ICP Profile',  icon: Target    },
+    { id: 'recover'  as Tab, label: 'Recover',      icon: RefreshCw },
+    { id: 'generate' as Tab, label: 'Generate',     icon: Zap       },
   ]
 
   return (
     <div className="min-h-screen bg-navy-900 text-white">
-      <nav className="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="SignalOps" className="h-7" />
-          <span className="text-xs text-slate-500 border border-slate-700 px-2 py-0.5 rounded">Demo</span>
+      {/* Nav — logo + tagline + status all in one clean bar */}
+      <nav className="border-b border-slate-800 px-6 py-0 flex items-center justify-between h-16">
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="SignalOps" className="h-9" />
+          <span className="hidden md:block text-xs text-slate-600 border-l border-slate-800 pl-4">
+            Precision targeting, powered by your own revenue data.
+          </span>
         </div>
         <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-500 border border-slate-700 px-2 py-0.5 rounded">Demo</span>
           <span className="text-xs text-slate-500">Koreva · B2B SaaS</span>
           <div className="w-2 h-2 rounded-full bg-teal-500" />
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white mb-1">Revenue Intelligence</h1>
-          <p className="text-slate-400 text-sm">Precision targeting, powered by your own revenue data.</p>
-        </div>
-
-        <div className="flex gap-2 mb-8 border-b border-slate-800 pb-0">
+      {/* Tab bar — directly under nav, no page title taking up space */}
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="flex gap-1 border-b border-slate-800">
           {tabs.map(tab => {
             const Icon = tab.icon
             const active = activeTab === tab.id
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors -mb-px ${active ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+                className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 transition-colors -mb-px ${
+                  active ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-500 hover:text-slate-300'
+                }`}
               >
                 <Icon size={15} />{tab.label}
               </button>
             )
           })}
         </div>
+      </div>
 
+      {/* Content */}
+      <div className="max-w-6xl mx-auto px-6 py-7">
         {activeTab !== 'data' && <SourcesBar />}
         {activeTab === 'data'     && <DataCentre />}
         {activeTab === 'icp'      && <ICPProfile />}
