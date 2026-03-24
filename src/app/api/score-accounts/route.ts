@@ -22,7 +22,7 @@ export async function POST() {
       const last = new Date(c.last_contact)
       const monthsAgo = (now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24 * 30)
       return monthsAgo > 5 || c.status === 'churned' || c.status === 'lost' || c.deal_stage === 'closed_lost'
-    }).slice(0, 25)
+    }).slice(0, 15) // Reduced to 15 to avoid token limit truncation
 
     const prompt = `You are a revenue intelligence analyst. Score these dormant accounts against the ICP profile and segment them by why they went cold.
 
@@ -70,7 +70,7 @@ Return JSON object with accounts array:
       },
       body: JSON.stringify({
         model: 'gpt-4o',
-        max_tokens: 2500,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_object' },
       }),
