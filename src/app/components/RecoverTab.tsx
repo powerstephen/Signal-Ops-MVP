@@ -104,12 +104,9 @@ export default function RecoverTab() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-white mb-1">Recover dormant accounts</h2>
-        <p className="text-slate-400 text-sm">
-          Surface dormant accounts that match your best-customer profile, segmented by why they went cold — with a tailored 3-email sequence for each.
-        </p>
-      </div>
+      <p className="text-slate-400 text-sm mb-6">
+        Surface dormant accounts that match your best-customer profile, segmented by why they went cold — with a tailored 3-email sequence for each.
+      </p>
 
       {accounts.length === 0 && (
         <div className="bg-navy-800 rounded-xl border border-slate-800 p-8 text-center">
