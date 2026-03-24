@@ -94,16 +94,13 @@ export default function DataCentre() {
       )}
 
       <div className="flex items-start justify-between mb-5">
-        <div>
-          <h2 className="text-lg font-semibold text-white mb-1">Data Centre</h2>
-          <p className="text-slate-400 text-sm">
-            Connect your data sources.{' '}
-            {connCount > 0
-              ? <span className="text-teal-400 font-medium">{connCount} source{connCount !== 1 ? 's' : ''} active.</span>
-              : <span className="text-slate-500">No sources connected yet.</span>
-            }
-          </p>
-        </div>
+        <p className="text-slate-400 text-sm">
+          Connect your data sources.{' '}
+          {connCount > 0
+            ? <span className="text-teal-400 font-medium">{connCount} source{connCount !== 1 ? 's' : ''} active.</span>
+            : <span className="text-slate-500">No sources connected yet — connect Google Sheets or CSV to get started.</span>
+          }
+        </p>
       </div>
 
       {sources.length > 0 && (
