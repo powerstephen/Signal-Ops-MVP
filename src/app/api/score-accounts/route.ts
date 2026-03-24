@@ -3,7 +3,6 @@ import { getAllCustomers, getBestCustomers } from '@/lib/data'
 
 export async function POST() {
   try {
-    // Check API key exists
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ error: 'OPENAI_API_KEY not set in environment variables' }, { status: 500 })
     }
@@ -25,12 +24,12 @@ export async function POST() {
       return monthsAgo > 5 || c.status === 'churned' || c.status === 'lost' || c.deal_stage === 'closed_lost'
     }).slice(0, 25)
 
-    const prompt = `You are a revenue intelligence analyst. Score these dormant/inactive accounts against the ICP profile.
+    const prompt = `You are a revenue intelligence analyst. Score these dormant accounts against the ICP profile and segment them by why they went cold.
 
 BEST CUSTOMER PROFILE:
 ${JSON.stringify(bestProfile, null, 2)}
 
-DORMANT ACCOUNTS TO SCORE:
+DORMANT ACCOUNTS:
 ${JSON.stringify(dormant.map(c => ({
   id: c.id, company: c.company, industry: c.industry, employees: c.employees,
   stage: c.stage, country: c.country, contact: c.contact, title: c.title,
@@ -38,17 +37,27 @@ ${JSON.stringify(dormant.map(c => ({
   deal_value: c.deal_value, support_tickets: c.support_tickets,
 })), null, 2)}
 
-For each account, assign an ICP match score 0-100 based on similarity to the best customer profile.
+For each account return:
+- icp_score (0-100): fit against best customer profile
+- score_label: "Strong fit" / "Good fit" / "Weak fit"
+- segment: one of "Late-stage ghosted", "Early-stage browser", "Churned — recoverable", "Lost deal", "Timing issue"
+- segment_reason: one sentence why they fit that segment
+- score_reasons: 3 specific reasons this account scores well or poorly
+- why_now: one sentence signal-based reason to re-engage RIGHT NOW (reference their stage, timing, industry trends)
+- reengagement_angle: the specific hook to use — what new value can you offer this specific account
 
-Return a JSON object with an accounts array:
+Return JSON object with accounts array:
 {
   "accounts": [
     {
       "id": "c001",
       "icp_score": 85,
       "score_label": "Strong fit",
-      "score_reasons": ["Reason 1", "Reason 2", "Reason 3"],
-      "why_now": "One sentence signal-based reason to re-engage right now"
+      "segment": "Late-stage ghosted",
+      "segment_reason": "Had demo and proposal, went cold at contracting stage",
+      "score_reasons": ["...","...","..."],
+      "why_now": "...",
+      "reengagement_angle": "..."
     }
   ]
 }`
@@ -61,7 +70,7 @@ Return a JSON object with an accounts array:
       },
       body: JSON.stringify({
         model: 'gpt-4o',
-        max_tokens: 2000,
+        max_tokens: 2500,
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_object' },
       }),
@@ -69,15 +78,13 @@ Return a JSON object with an accounts array:
 
     if (!response.ok) {
       const errText = await response.text()
-      console.error('OpenAI error:', response.status, errText)
       return NextResponse.json({ error: `OpenAI API error ${response.status}: ${errText}` }, { status: 500 })
     }
 
     const data = await response.json()
 
     if (!data.choices?.[0]?.message?.content) {
-      console.error('Unexpected OpenAI response:', JSON.stringify(data))
-      return NextResponse.json({ error: 'Unexpected response from OpenAI', detail: JSON.stringify(data) }, { status: 500 })
+      return NextResponse.json({ error: 'Unexpected response from OpenAI' }, { status: 500 })
     }
 
     const parsed = JSON.parse(data.choices[0].message.content)
